@@ -15,14 +15,19 @@ char Cargo  [40];
 int  Nro_CI;
 int  Sueldo;
 };
-
+//Registro
 vector <Trabajadores> Resgistro_Trabajadores();
 bool Validar_Datos_Caracteres(string Datos_Registrados);
 bool Validar_Datos_Numericos(string Datos_Registrados );
+void Imprimir_Vectores_Trabajadores(vector <Trabajadores>& Lista_Trabajadores);
+//Menu
 void Menu_Trabajadores ();
+//Archivos .txt
 void Crear_Lista_Trabajadores_txt(vector <Trabajadores> Lista_Trabajadores);
-void Imprimir_Vectores_Trabajadores(vector <Trabajadores> Lista_Trabajadores);
 void Cargar_Lista_Trabajadores_txt(vector <Trabajadores>& Lista_Trabajadores);
+//Archivos .bin
+void Crear_Lista_Trabajadores_bin(vector<Trabajadores>& Lista_Trabajadores);
+vector <Trabajadores> Leer_Lista_Trabajadores_bin();
 
 //FUNCIONES TRABAJADORES
 vector <Trabajadores> Resgistro_Trabajadores()
@@ -34,6 +39,7 @@ vector <Trabajadores> Resgistro_Trabajadores()
    int numero_trabajadores = 0;
    bool verificador = true;
    do {
+      system ("cls");
       cout<<"Ingrese cuantos trabajadores desea registrar: ";
       getline(cin, Almacenador_Datos);
       if (Validar_Datos_Numericos(Almacenador_Datos))
@@ -45,7 +51,10 @@ vector <Trabajadores> Resgistro_Trabajadores()
       }
       else
       {
+      system("cls");
+      cout<< "Opcion invalida. ";
       cout << "Ingrese un numero para comenzar el registro." << endl;
+      system("pause");
       Almacenador_Datos = "";
       verificador = false;
       }
@@ -172,17 +181,25 @@ bool Validar_Datos_Numericos(string Datos_Registrados )
     return true; 
 }
 
-//Funcion Que Crea El Archivo De Texto
+//FUNCIONES ARCHIVOS .TXT
 void Crear_Lista_Trabajadores_txt(vector <Trabajadores> Lista_Trabajadores)
 {
-   ofstream archivo;
-   archivo.open("Lista_de_Trabajadores.txt", ios::out);
-   if (archivo.fail())
-   {
-      cout<<"No se logro crear el archivo con exito"<<endl; 
-   }
-   else
-   {
+    if (Lista_Trabajadores.empty())
+    {
+    system("cls");
+    cout<<"No se pueede crear el archivo porque no se registraron trabajadores"<<endl;
+    system("pause");
+    }
+    else
+    {
+        ofstream archivo;
+    archivo.open("Lista_de_Trabajadores.txt", ios::out);
+    if (archivo.fail())
+    {
+      cout<<"No se logro crear el archivo con exito."<<endl; 
+    }
+    else
+    {
       for (int i = 0; i < Lista_Trabajadores.size(); i++)
       {
         archivo << Lista_Trabajadores[i].Nombres << ",";
@@ -191,21 +208,33 @@ void Crear_Lista_Trabajadores_txt(vector <Trabajadores> Lista_Trabajadores)
         archivo << Lista_Trabajadores[i].Nro_CI << ",";
         archivo << Lista_Trabajadores[i].Sueldo << endl; 
       }
-    cout << "Archivo 'Lista_de_Trabajadores.txt' creado exitosamente." << endl;
-    archivo.close();
-    system("pause");
-   }
+     system("cls");
+     cout << "Archivo 'Lista_de_Trabajadores.txt' fue creado exitosamente." << endl;
+     archivo.close();
+     system("pause");
+    }
+    }
 }
 
-//Funcion Que Carga Los Datos desde un Archivo de Texto
 void Cargar_Lista_Trabajadores_txt(vector <Trabajadores> &Lista_Trabajadores)
 {
+    if (!Lista_Trabajadores.empty())
+    {
+    system("cls");
+    cout<<"El sistema esta cargado de una lista previa de trabajadores"<<endl;
+    system("pause");
+    }
+    else
+    {
     ifstream archivo("Lista_de_Trabajadores.txt", ios::in);
     if (archivo.fail())
     {
+        system("cls");
         cout << "No se logro abrir el archivo con exito" << endl;
-        return;
+        system("pause");
     }
+    else
+    {
     string linea;
     while (getline(archivo, linea))
     {
@@ -227,9 +256,74 @@ void Cargar_Lista_Trabajadores_txt(vector <Trabajadores> &Lista_Trabajadores)
         Datos_Trabajador.Sueldo = stoi(sueldo);
         Lista_Trabajadores.push_back(Datos_Trabajador);
     }
-    archivo.close();
-    cout << "\nSe logro cargar los datos del archivo de texto." << endl;
+    system("cls");
+    cout << "Se logro cargar los datos del archivo de texto." << endl;
     system("pause");
+    }
+    archivo.close();
+    }
+}
+
+//FUNCIONES ARCHIVOS .BIN
+void Crear_Lista_Trabajadores_bin(vector<Trabajadores>& Lista_Trabajdores)
+{
+    ofstream archivo;
+    archivo.open("Lista_de_Trabajadores.bin", ios::binary | ios::trunc);  
+    if (archivo.fail())
+    {
+    cout<<"El archivo no se loro crear con exito"<<endl;
+    } 
+    else
+    {
+        for (Trabajadores i : Lista_Trabajdores )
+        {
+        archivo.write((char*)&i, sizeof(Trabajadores));
+        }
+        cout << "Se registro la lista de trabajadores. "<<endl;
+        system("pause");
+    }
+    archivo.close();
+}
+//REVISAR
+void Aniadir_Lista_Trabajadores_bin(vector<Trabajadores>& Lista_Trabajdores)
+{
+    ofstream archivo;
+    archivo.open("Lista_de_Trabajadores.bin", ios::binary | ios::app);  
+    if (archivo.fail())
+    {
+    cout<<"El archivo no se loro abrir con exito"<<endl;
+    } 
+    for (Trabajadores i : Lista_Trabajdores )
+    {
+        archivo.write((char*)&i, sizeof(Trabajadores));
+    }
+    archivo.close();
+    cout << "Se logro aniadir trabajdores al registro cone xito. ";
+    system("pause");
+}
+vector <Trabajadores> Leer_Lista_Trabajadores_bin()
+{
+    system("cls");
+    ifstream archivo;
+    Trabajadores Datos_Trabajador;
+    vector<Trabajadores>Lista_Trabajadores;
+    archivo.open("Lista_de_Trabajadores.bin", ios::binary);  
+    if (archivo.fail())
+    {
+    cout<<"El archivo no se logro abrir con exito"<<endl;
+    system("pause");
+    } 
+    else
+    {
+    while (archivo.read((char*)&Datos_Trabajador, sizeof(Trabajadores)))
+    {
+        Lista_Trabajadores.push_back(Datos_Trabajador);
+    }
+    cout << "Lista de trabajadores cargada al sistema. "<<endl;
+    system("pause");
+    }
+    archivo.close();
+    return Lista_Trabajadores;
 }
 
 
@@ -245,8 +339,10 @@ void Menu_Trabajadores ()
       system("cls");
       cout<<"MENU TRABAJADORES "<<endl;
       cout<<"1. Registrar Trabajadores "<<endl;
-      cout<<"2. Listar Trabajadores en un archivo .txt"<<endl;
-      cout<<"3. Cargar lista de trabajadores desde un archivo .txt"<<endl;
+      cout<<"2. Mostrar Lista de Trabajadores "<<endl;
+      cout<<"3. Listar Trabajadores en un archivo .txt"<<endl;
+      cout<<"4. Cargar lista de trabajadores"<<endl;
+      cout<<"5. Cargar lista de trabajadores desde un archivo .txt"<<endl;
       cout<<"0. Salir"<<endl;
       do {
             cout<<"Ingrese una opcion: ";
@@ -268,13 +364,21 @@ void Menu_Trabajadores ()
       case 1:
          Lista_Trabajadores = Resgistro_Trabajadores();
          Imprimir_Vectores_Trabajadores(Lista_Trabajadores);
-         system("pause");
+         Crear_Lista_Trabajadores_bin(Lista_Trabajadores);
          break;
       case 2:
-         Crear_Lista_Trabajadores_txt( Lista_Trabajadores);
+         Imprimir_Vectores_Trabajadores(Lista_Trabajadores);
          break;
       case 3:
+         Crear_Lista_Trabajadores_txt( Lista_Trabajadores);
+         break;
+      case 4:
+         Lista_Trabajadores = Leer_Lista_Trabajadores_bin();
+         break;
+      case 5:
          Cargar_Lista_Trabajadores_txt(Lista_Trabajadores);
+         break;
+      default:
          break;
       }
    } while (opcion_numerica != 0);
@@ -282,9 +386,15 @@ void Menu_Trabajadores ()
 }
 
 //FUNCIONES AUXILIARES
-void Imprimir_Vectores_Trabajadores(vector <Trabajadores> Lista_Trabajadores)
+void Imprimir_Vectores_Trabajadores(vector <Trabajadores>& Lista_Trabajadores)
 {
   system("cls");
+  if(Lista_Trabajadores.empty())
+  {
+  cout<<"La lista de trbajadores esta vacia. "<<endl;
+  }
+  else
+  {
   for (int i = 0; i < Lista_Trabajadores.size(); i++)
   {
    cout<<"Datos del trabajador ["<<i+1<<"]"<<endl;
@@ -294,4 +404,6 @@ void Imprimir_Vectores_Trabajadores(vector <Trabajadores> Lista_Trabajadores)
    cout<<"El cargo del trabajadr es: "<<Lista_Trabajadores[i].Cargo<<endl;
    cout<<"El sueldo del trabajador es: "<<Lista_Trabajadores[i].Sueldo<<endl;
   }
+  }
+  system ("pause");
 }
