@@ -1,7 +1,5 @@
-#include <iostream>
-
-using namespace std;
+#include "Trabajadores.h"
 
 int main(){
-    return 0;
+    Menu_Trabajadores();
 }
