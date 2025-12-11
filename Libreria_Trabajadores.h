@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <string.h>
@@ -9,46 +10,49 @@ using namespace std;
 
 struct Trabajadores
 {
-char Nombres [50];
-char Apellidos [50];
-char Cargo  [40];
-int  Nro_CI;
-int  Sueldo;
+    char Nombres [50];
+    char Apellidos [50];
+    char Cargo [40];
+    int  Nro_CI;
+    int  Sueldo;
 };
-//Registro
+
+//RESGITRO
 vector <Trabajadores> Resgistro_Trabajadores();
 bool Validar_Datos_Caracteres(string Datos_Registrados);
 bool Validar_Datos_Numericos(string Datos_Registrados );
 void Imprimir_Vectores_Trabajadores(vector <Trabajadores>& Lista_Trabajadores);
-//Menu
-void Menu_Trabajadores ();
-//Archivos .txt
-void Crear_Lista_Trabajadores_txt(vector <Trabajadores> Lista_Trabajadores);
-void Cargar_Lista_Trabajadores_txt(vector <Trabajadores>& Lista_Trabajadores);
-//Archivos .bin
-void Crear_Lista_Trabajadores_bin(vector<Trabajadores>& Lista_Trabajadores);
-vector <Trabajadores> Leer_Lista_Trabajadores_bin();
-vector <Trabajadores> Leer_Archivo_BIN_estructura();
-
-//Funciones de ABM
 void Imprimir_Trabajadores(Trabajadores Datos_Trabajador);
 bool Comparador_de_Strings(string nombre_buscado, string nombre_trabajador);
 string Volver_Cadena_Minuscula(string cadena_caracteres);
 
+//MENU TRABAJADORES
+void Menu_Trabajadores();
+
+//ARCHIVOS .txt
+void Crear_Lista_Trabajadores_txt(vector <Trabajadores> Lista_Trabajadores);
+void Cargar_Lista_Trabajadores_txt(vector <Trabajadores>& Lista_Trabajadores);
+
+//ARCHIVOS .bin
+void Crear_Lista_Trabajadores_bin(vector<Trabajadores>& Lista_Trabajadores);
+vector <Trabajadores> Leer_Lista_Trabajadores_bin();
+vector <Trabajadores> Leer_Archivo_BIN_estructura_trabajadores();
+
+//FUNCIONES ABM
 //SUB MENU REGISTRO TRABAJADORES
 void Sub_Menu_Registrar_Trabajadores(vector<Trabajadores>& Lista_Trabajadores);
 
 //OPCIONES ABM
 //OPCION 2
-void Agregar_Trabajadores_BIN(vector<Trabajadores> Nuevos);
+void Agregar_Trabajadores_BIN(vector<Trabajadores> Nuevos_Trabajadores);
 //OPCION 3
-void Opciones_Busqueda(vector <Trabajadores> Lista_Trabajadores);
-void Buscar_Nombre(vector <Trabajadores> Lista_Trabajadores);
-void Buscar_Apellido(vector <Trabajadores> Lista_Trabajadores);
-void Buscar_CI(vector <Trabajadores> Lista_Trabajadores);
+void Opciones_Busqueda_Trabajador(vector <Trabajadores> Lista_Trabajadores);
+void Buscar_Nombre_Trabajador(vector <Trabajadores> Lista_Trabajadores);
+void Buscar_Apellido_Trabajador(vector <Trabajadores> Lista_Trabajadores);
+void Buscar_CI_Trabajador(vector <Trabajadores> Lista_Trabajadores);
 //OPCION 4
 Trabajadores Sub_Menu_Editar_Trabajador(Trabajadores Datos_Trabajador);
-void Editar_Datos(vector<Trabajadores> Lista_Trabajadores);
+void Editar_Datos_Trabajador(vector<Trabajadores> Lista_Trabajadores);
 //OPCION 5 
 void Borrar_Trabajador(vector<Trabajadores> Lista_Trabajadores);
 
@@ -67,19 +71,18 @@ vector <Trabajadores> Resgistro_Trabajadores()
       getline(cin, Almacenador_Datos);
       if (Validar_Datos_Numericos(Almacenador_Datos))
       {
-      stringstream numeros(Almacenador_Datos);
-      numeros>> numero_trabajadores; 
-      Almacenador_Datos = "";
-      verificador = true;
+        stringstream numeros(Almacenador_Datos);
+        numeros>> numero_trabajadores; 
+        Almacenador_Datos = "";
+        verificador = true;
       }
       else
       {
-      system("cls");
-      cout<< "Opcion invalida. ";
-      cout << "Ingrese un numero para comenzar el registro." << endl;
-      system("pause");
-      Almacenador_Datos = "";
-      verificador = false;
+        system("cls");
+        cout<<"Opcion invalida. "<<endl;
+        system("pause");
+        Almacenador_Datos = "";
+        verificador = false;
       }
       } while (verificador != true);
    for (int i = 0; i < numero_trabajadores; i++)
@@ -209,33 +212,33 @@ void Crear_Lista_Trabajadores_txt(vector <Trabajadores> Lista_Trabajadores)
 {
     if (Lista_Trabajadores.empty())
     {
-    system("cls");
-    cout<<"No se pueede crear el archivo porque no se registraron trabajadores"<<endl;
-    system("pause");
+        system("cls");
+        cout<<"No se puede crear el archivo porque no se registraron trabajadores"<<endl;
+        system("pause");
     }
     else
     {
         ofstream archivo;
-    archivo.open("Lista_de_Trabajadores.txt", ios::out);
-    if (archivo.fail())
-    {
-      cout<<"No se logro crear el archivo con exito."<<endl; 
-    }
-    else
-    {
-      for (int i = 0; i < Lista_Trabajadores.size(); i++)
-      {
-        archivo << Lista_Trabajadores[i].Nombres << ",";
-        archivo << Lista_Trabajadores[i].Apellidos << ",";
-        archivo << Lista_Trabajadores[i].Cargo << ",";
-        archivo << Lista_Trabajadores[i].Nro_CI << ",";
-        archivo << Lista_Trabajadores[i].Sueldo << endl; 
-      }
-     system("cls");
-     cout << "Archivo 'Lista_de_Trabajadores.txt' fue creado exitosamente." << endl;
-     archivo.close();
-     system("pause");
-    }
+        archivo.open("Lista_de_Trabajadores.txt", ios::out);
+        if (archivo.fail())
+        {
+            cout<<"No se logro crear el archivo con exito."<<endl; 
+        }
+        else
+        {
+            for (int i = 0; i < Lista_Trabajadores.size(); i++)
+            {
+                archivo << Lista_Trabajadores[i].Nombres << ",";
+                archivo << Lista_Trabajadores[i].Apellidos << ",";
+                archivo << Lista_Trabajadores[i].Cargo << ",";
+                archivo << Lista_Trabajadores[i].Nro_CI << ",";
+                archivo << Lista_Trabajadores[i].Sueldo << endl; 
+            }
+            system("cls");
+            cout << "Archivo 'Lista_de_Trabajadores.txt' fue creado exitosamente." << endl;
+            archivo.close();
+            system("pause");
+        }
     }
 }
 
@@ -243,47 +246,47 @@ void Cargar_Lista_Trabajadores_txt(vector <Trabajadores> &Lista_Trabajadores)
 {
     if (!Lista_Trabajadores.empty())
     {
-    system("cls");
-    cout<<"El sistema esta cargado de una lista previa de trabajadores"<<endl;
-    system("pause");
-    }
-    else
-    {
-    ifstream archivo("Lista_de_Trabajadores.txt", ios::in);
-    if (archivo.fail())
-    {
         system("cls");
-        cout << "No se logro abrir el archivo con exito" << endl;
+        cout<<"El sistema esta cargado de una lista previa de trabajadores"<<endl;
         system("pause");
     }
     else
     {
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream partes_linea(linea);
-        string nombre, apellido, cargo, ci, sueldo;
-        getline(partes_linea, nombre, ',');
-        getline(partes_linea, apellido, ',');
-        getline(partes_linea, cargo, ',');
-        getline(partes_linea, ci, ',');
-        getline(partes_linea, sueldo, ',');
-        if (!nombre.empty() && nombre[0] == ' ') nombre.erase(0, 1);
-        if (!apellido.empty() && apellido[0] == ' ') apellido.erase(0, 1);
-        if (!cargo.empty() && cargo[0] == ' ') cargo.erase(0, 1);
-        Trabajadores Datos_Trabajador;
-        strcpy(Datos_Trabajador.Nombres, nombre.c_str());
-        strcpy(Datos_Trabajador.Apellidos, apellido.c_str());
-        strcpy(Datos_Trabajador.Cargo, cargo.c_str());
-        Datos_Trabajador.Nro_CI = stoi(ci);
-        Datos_Trabajador.Sueldo = stoi(sueldo);
-        Lista_Trabajadores.push_back(Datos_Trabajador);
-    }
-    system("cls");
-    cout << "Se logro cargar los datos del archivo de texto." << endl;
-    system("pause");
-    }
-    archivo.close();
+        ifstream archivo("Lista_de_Trabajadores.txt", ios::in);
+        if (archivo.fail())
+        {
+            system("cls");
+            cout << "No se logro abrir el archivo con exito" << endl;
+            system("pause");
+        }
+        else
+        {
+            string linea;
+            while (getline(archivo, linea))
+            {
+                stringstream partes_linea(linea);
+                string nombre, apellido, cargo, ci, sueldo;
+                getline(partes_linea, nombre, ',');
+                getline(partes_linea, apellido, ',');
+                getline(partes_linea, cargo, ',');
+                getline(partes_linea, ci, ',');
+                getline(partes_linea, sueldo, ',');
+                if (!nombre.empty() && nombre[0] == ' ') nombre.erase(0, 1);
+                if (!apellido.empty() && apellido[0] == ' ') apellido.erase(0, 1);
+                if (!cargo.empty() && cargo[0] == ' ') cargo.erase(0, 1);
+                Trabajadores Datos_Trabajador;
+                strcpy(Datos_Trabajador.Nombres, nombre.c_str());
+                strcpy(Datos_Trabajador.Apellidos, apellido.c_str());
+                strcpy(Datos_Trabajador.Cargo, cargo.c_str());
+                Datos_Trabajador.Nro_CI = stoi(ci);
+                Datos_Trabajador.Sueldo = stoi(sueldo);
+                Lista_Trabajadores.push_back(Datos_Trabajador);
+            }
+            system("cls");
+            cout << "Se logro cargar los datos del archivo de texto." << endl;
+            system("pause");
+        }
+        archivo.close();
     }
 }
 
@@ -294,13 +297,13 @@ void Crear_Lista_Trabajadores_bin(vector<Trabajadores>& Lista_Trabajdores)
     archivo.open("Lista_de_Trabajadores.bin", ios::binary | ios::trunc);  
     if (archivo.fail())
     {
-    cout<<"El archivo no se loro crear con exito"<<endl;
+        cout<<"El archivo no se logro crear con exito"<<endl;
     } 
     else
     {
         for (Trabajadores i : Lista_Trabajdores )
         {
-        archivo.write((char*)&i, sizeof(Trabajadores));
+            archivo.write((char*)&i, sizeof(Trabajadores));
         }
         cout << "Se registro la lista de trabajadores. "<<endl;
         system("pause");
@@ -317,17 +320,17 @@ vector <Trabajadores> Leer_Lista_Trabajadores_bin()
     archivo.open("Lista_de_Trabajadores.bin", ios::binary);  
     if (archivo.fail())
     {
-    cout<<"El archivo no se logro abrir con exito"<<endl;
-    system("pause");
+        cout<<"El archivo no se logro abrir con exito"<<endl;
+        system("pause");
     } 
     else
     {
-    while (archivo.read((char*)&Datos_Trabajador, sizeof(Trabajadores)))
-    {
-        Lista_Trabajadores.push_back(Datos_Trabajador);
-    }
-    cout << "Lista de trabajadores cargada al sistema. "<<endl;
-    system("pause");
+        while (archivo.read((char*)&Datos_Trabajador, sizeof(Trabajadores)))
+        {
+            Lista_Trabajadores.push_back(Datos_Trabajador);
+        }
+        cout << "Lista de trabajadores cargada al sistema. "<<endl;
+        system("pause");
     }
     archivo.close();
     return Lista_Trabajadores;
@@ -387,7 +390,6 @@ void Menu_Trabajadores ()
          break;
       }
    } while (opcion_numerica != 0);
-   
 }
 
 //FUNCIONES AUXILIARES
@@ -396,19 +398,19 @@ void Imprimir_Vectores_Trabajadores(vector <Trabajadores>& Lista_Trabajadores)
   system("cls");
   if(Lista_Trabajadores.empty())
   {
-  cout<<"La lista de trbajadores esta vacia. "<<endl;
+    cout<<"La lista de trabajadores esta vacia. "<<endl;
   }
   else
   {
-  for (int i = 0; i < Lista_Trabajadores.size(); i++)
-  {
-   cout<<"Datos del trabajador ["<<i+1<<"]"<<endl;
-   cout<<"Los nombres del trabajador es: "<<Lista_Trabajadores[i].Nombres<<endl;
-   cout<<"Los apellidos del trabajador es: "<<Lista_Trabajadores[i].Apellidos<<endl;
-   cout<<"El Nro_CI del trabajador es: "<<Lista_Trabajadores[i].Nro_CI<<endl;
-   cout<<"El cargo del trabajadr es: "<<Lista_Trabajadores[i].Cargo<<endl;
-   cout<<"El sueldo del trabajador es: "<<Lista_Trabajadores[i].Sueldo<<endl;
-  }
+    for (int i = 0; i < Lista_Trabajadores.size(); i++)
+    {
+        cout<<"Datos del trabajador ["<<i+1<<"]"<<endl;
+        cout<<"Los nombres del trabajador es: "<<Lista_Trabajadores[i].Nombres<<endl;
+        cout<<"Los apellidos del trabajador es: "<<Lista_Trabajadores[i].Apellidos<<endl;
+        cout<<"El Nro_CI del trabajador es: "<<Lista_Trabajadores[i].Nro_CI<<endl;
+        cout<<"El cargo del trabajadr es: "<<Lista_Trabajadores[i].Cargo<<endl;
+        cout<<"El sueldo del trabajador es: "<<Lista_Trabajadores[i].Sueldo<<endl;
+    }
   }
   system ("pause");
 }
@@ -424,7 +426,7 @@ void Imprimir_Trabajadores(Trabajadores Datos_Trabajador)
    cout<<"=========================="<<endl;
 }
 
-vector <Trabajadores> Leer_Archivo_BIN_estructura()
+vector <Trabajadores> Leer_Archivo_BIN_estructura_trabajadores()
 {
     system("cls");
     ifstream archivo;
@@ -457,7 +459,6 @@ bool Comparador_de_Strings(string nombre_buscado, string nombre_trabajador)
     {
         nombre_buscado_vector.push_back(nombre_buscado_auxiliar);
     }
-
     nombre_trabajador = Volver_Cadena_Minuscula(nombre_trabajador);
     stringstream nombre_trabajadro_partes(nombre_trabajador);
     string nombre_trabajador_auxiliar;
@@ -536,7 +537,7 @@ void Sub_Menu_Registrar_Trabajadores(vector<Trabajadores>& Lista_Trabajadores)
         break;
     case 2:
         system("cls");
-        Lista_Trabajadores = Leer_Archivo_BIN_estructura();
+        Lista_Trabajadores = Leer_Archivo_BIN_estructura_trabajadores();
         if (Lista_Trabajadores.empty())
         {
             cout << "La lista esta vacia" << endl;
@@ -555,11 +556,11 @@ void Sub_Menu_Registrar_Trabajadores(vector<Trabajadores>& Lista_Trabajadores)
         break;
     case 3:    
         system("cls");
-        Lista_Trabajadores = Leer_Archivo_BIN_estructura();
-        Opciones_Busqueda( Lista_Trabajadores);
+        Lista_Trabajadores = Leer_Archivo_BIN_estructura_trabajadores();
+        Opciones_Busqueda_Trabajador( Lista_Trabajadores);
         break;
     case 4:
-        Editar_Datos(Lista_Trabajadores);
+        Editar_Datos_Trabajador(Lista_Trabajadores);
         break;
     case 5:
         Borrar_Trabajador( Lista_Trabajadores);
@@ -591,7 +592,7 @@ void Agregar_Trabajadores_BIN(vector<Trabajadores> Nuevos)
 }
 
 //OPCION 3 BUSCAR TRABJADORES
-void Opciones_Busqueda(vector <Trabajadores> Lista_Trabajadores)
+void Opciones_Busqueda_Trabajador(vector <Trabajadores> Lista_Trabajadores)
 {
     system("cls");
     int opcion = 0;
@@ -623,13 +624,13 @@ void Opciones_Busqueda(vector <Trabajadores> Lista_Trabajadores)
     switch (opcion)
     {
     case 1:
-        Buscar_Nombre(Lista_Trabajadores);
+        Buscar_Nombre_Trabajador(Lista_Trabajadores);
         break;
     case 2:
-        Buscar_Apellido(Lista_Trabajadores);
+        Buscar_Apellido_Trabajador(Lista_Trabajadores);
         break;
     case 3:
-        Buscar_CI(Lista_Trabajadores);
+        Buscar_CI_Trabajador(Lista_Trabajadores);
         break;
     default:
         break;
@@ -637,7 +638,7 @@ void Opciones_Busqueda(vector <Trabajadores> Lista_Trabajadores)
 }
 
 //OPCION BUSCAR NOMBRE
-void Buscar_Nombre(vector <Trabajadores> Lista_Trabajadores)
+void Buscar_Nombre_Trabajador(vector <Trabajadores> Lista_Trabajadores)
 {
     if (Lista_Trabajadores.empty())
     {
@@ -665,7 +666,7 @@ void Buscar_Nombre(vector <Trabajadores> Lista_Trabajadores)
 }
 
 // OPCION BUSCAR APELLIDO
-void Buscar_Apellido(vector <Trabajadores> Lista_Trabajadores)
+void Buscar_Apellido_Trabajador(vector <Trabajadores> Lista_Trabajadores)
 {
     if (Lista_Trabajadores.empty())
     {
@@ -693,7 +694,7 @@ void Buscar_Apellido(vector <Trabajadores> Lista_Trabajadores)
 }
 
 //OPCION BUSCAR CI
-void Buscar_CI(vector <Trabajadores> Lista_Trabajadores)
+void Buscar_CI_Trabajador(vector <Trabajadores> Lista_Trabajadores)
 {
     string Nro_CI;
     if (Lista_Trabajadores.empty())
@@ -719,7 +720,7 @@ void Buscar_CI(vector <Trabajadores> Lista_Trabajadores)
 }
 
 //OPCION EDITAR DATOS TRABAJADOR
-void Editar_Datos(vector<Trabajadores> Lista_Trabajadores)
+void Editar_Datos_Trabajador(vector<Trabajadores> Lista_Trabajadores)
 {
     if (Lista_Trabajadores.empty())
     {
@@ -765,7 +766,7 @@ Trabajadores Sub_Menu_Editar_Trabajador(Trabajadores Datos_Trabajador)
     string texto;
     int numero;
     do {
-        cout << "EDITAR DATOS DEL TRABAJADOR";
+        cout << "EDITAR DATOS DEL TRABAJADOR"<<endl;
         cout << "1. Editar Nombre"<<endl;
         cout << "2. Editar Apellido"<<endl;
         cout << "3. Editar CI"<<endl;
@@ -825,7 +826,7 @@ Trabajadores Sub_Menu_Editar_Trabajador(Trabajadores Datos_Trabajador)
         Datos_Trabajador.Sueldo = numero;
         break;
     default:
-        cout << "Opcion invalida.\n";
+        cout << "Opcion invalida."<<endl;
         break;
     }
     return Datos_Trabajador;
