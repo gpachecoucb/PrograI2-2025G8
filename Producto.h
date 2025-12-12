@@ -145,7 +145,7 @@ void MostrarMenu(){
 
 void MostrarMenuVector(vector<string> vector_cadenas){
     for(int i = 0; i < vector_cadenas.size(); i++){
-        if(i%3 != 0){
+        if((i+1)%3 != 0){
             cout << i+1 << " " << vector_cadenas[i] << "\t";    
         }
         else{
@@ -176,4 +176,5 @@ void BuscarProductoID(string NombreArchivo, int id, Producto &producto_buscado){
     archivo.close();
     
     
+
 }
