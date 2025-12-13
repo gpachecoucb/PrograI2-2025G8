@@ -1,6 +1,6 @@
 #pragma once
 #include "Libreria_Trabajadores.h"
-#include "Libreria_Producto.h"
+#include "Producto.h"
 using namespace std;
 
 struct Proveedores
@@ -658,4 +658,5 @@ void Borrar_Proveedor(vector<Proveedores>& Lista_Proveedores)
         system("pause");
     }
 }
+
 
