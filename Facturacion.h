@@ -1,158 +1,248 @@
+#pragma once
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "Producto.h"
-#include "Facturacion_detalle.h"
 #include <ctime>
-#pragma once
+#include "Producto.h"
+#include "Facturacion_detalle.h" 
+
 using namespace std;
-struct Fecha
-{
-    int dia;
-    int mes;
-    int año;
+
+struct Fecha {
+    int dia, mes, año;
 };
-struct Facturacion
-{
+
+struct Facturacion {
     int nro_factura;
     int ci_cliente;
     int nit;
     int beneficiario;
     Fecha fecha;
     double total_factura;
+    bool eliminado;
 };
-void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string NombreArchivo);
-void MostrarFacturaciones(string NombreArchivo);
-void MostrarMenuFacturacion();
-void MostrarMenuFacturacionVector(vector<string> vector_cadenas);
 
+void ActualizarTotalFactura(string ArchivoFacturas, string ArchivoDetalles, int nroFactura) {
 
-int ControlFacturaciones(){
-    vector<Facturacion> vector_Facturacions;
-    string NombreArchivo = "Facturaciones.bin";
-    int opcion;
-    do {
-        MostrarMenuFacturacion();
-        cout << "Escoja una opcion: " << endl;
-        cin >> opcion;
-        cin.ignore();
-        
-        switch (opcion)
-        {
-        case 1:
-            AgregarFacturacion(vector_Facturacions, NombreArchivo);
-            
-            break;
-        case 2:
-            MostrarFacturaciones(NombreArchivo);
-            
-            break;
-        
-        case 3:
-            cout << "Saliendo del sistema..." << endl;
-            
-            break;
-        default:
-            cout << "Opcion no valida. Intente de nuevo." << endl;
-            
+    double nuevoTotal = SumarPrecioSubTotalNroFactura(ArchivoDetalles, nroFactura);
+    fstream archivoF(ArchivoFacturas, ios::binary | ios::in | ios::out);
+    Facturacion fact;
+    
+    while(archivoF.read((char*)&fact, sizeof(Facturacion))) {
+        if(fact.nro_factura == nroFactura) {
+            fact.total_factura = nuevoTotal;
+            archivoF.seekp(-(int)sizeof(Facturacion), ios::cur);
+            archivoF.write((char*)&fact, sizeof(Facturacion));
             break;
         }
-        
-    } while(opcion != 3);
-    
-    return 0;
+    }
+    archivoF.close();
 }
 
+void ModificarFacturaCompleta(string ArchivoFacturas, string ArchivoDetalles) {
+    int nroFactura;
+    cout << "Ingrese el Numero de Factura a modificar: ";
+    cin >> nroFactura;
 
-void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string NombreArchivo){
+    fstream archivoF(ArchivoFacturas, ios::binary | ios::in | ios::out);
+    if (!archivoF) {
+        cout << "Error al abrir archivo de facturas." << endl;
+        return;
+    }
 
+    Facturacion fact;
+    bool encontrada = false;
+
+    while (archivoF.read((char*)&fact, sizeof(Facturacion))) {
+        if (fact.nro_factura == nroFactura && !fact.eliminado) {
+            encontrada = true;
+            
+            int opcionMod;
+            do {
+                cout << "\n=== MODIFICANDO FACTURA NRO: " << fact.nro_factura << " ===" << endl;
+                cout << "1. Modificar Datos Cliente (CI, NIT, Beneficiario)" << endl;
+                cout << "2. Modificar Detalle (Cantidades de productos)" << endl;
+                cout << "3. Salir y Guardar Cambios" << endl;
+                cout << "Seleccione opcion: ";
+                cin >> opcionMod;
+                cin.ignore();
+
+                if (opcionMod == 1) {
+                    // MODIFICAR CABECERA
+                    cout << "Nuevo CI Cliente (Actual " << fact.ci_cliente << "): "; cin >> fact.ci_cliente;
+                    cout << "Nuevo NIT (Actual " << fact.nit << "): "; cin >> fact.nit;
+                    cout << "Nuevo Beneficiario (Actual " << fact.beneficiario << "): "; cin >> fact.beneficiario;
+                    
+                    archivoF.seekp(-(int)sizeof(Facturacion), ios::cur);
+                    archivoF.write((char*)&fact, sizeof(Facturacion));
+                    archivoF.seekg(archivoF.tellp());
+                    cout << "Cabecera actualizada." << endl;
+
+                } else if (opcionMod == 2) {
+                    // MODIFICAR DETALLE
+                    MostrarFacturacionDetallesNroFacturas(ArchivoDetalles, nroFactura);
+                    ModificarDetalleEspecifico(ArchivoDetalles, nroFactura);
+                    archivoF.close(); 
+                    ActualizarTotalFactura(ArchivoFacturas, ArchivoDetalles, nroFactura);
+                    
+                    archivoF.open(ArchivoFacturas, ios::binary | ios::in | ios::out);
+                    archivoF.seekg(0, ios::beg);
+                    while(archivoF.read((char*)&fact, sizeof(Facturacion))){
+                        if(fact.nro_factura == nroFactura) break;
+                    }
+                    cout << "--- TOTAL FACTURA RECALCULADO: " << fact.total_factura << " ---" << endl;
+                }
+
+            } while (opcionMod != 3);
+            break;
+        }
+    }
+    archivoF.close();
+    if (!encontrada) cout << "Factura no encontrada o eliminada." << endl;
+}
+
+void AnularFacturaLogica(string ArchivoFacturas, string ArchivoDetalles) {
+    int nroFacturaEliminar;
+    cout << "Ingrese el Numero de Factura a anular: ";
+    cin >> nroFacturaEliminar;
+    fstream archivoF(ArchivoFacturas, ios::binary | ios::in | ios::out);
+    Facturacion fact;
+    bool encontrada = false;
+
+    while (archivoF.read((char*)&fact, sizeof(Facturacion))) {
+        if (fact.nro_factura == nroFacturaEliminar && !fact.eliminado) {
+            encontrada = true;
+            cout << "Factura encontrada. Total: " << fact.total_factura << endl;
+            char confirm;
+            cout << "Seguro que desea anular esta factura y sus detalles? (s/n): ";
+            cin >> confirm;
+
+            if (confirm == 's' || confirm == 'S') {
+                fact.eliminado = true;
+                archivoF.seekp(-(int)sizeof(Facturacion), ios::cur);
+                archivoF.write((char*)&fact, sizeof(Facturacion));
+                cout << "Factura anulada." << endl;
+            } else {
+                cout << "Cancelado." << endl;
+                archivoF.close();
+                return;
+            }
+            break;
+        }
+    }
+    archivoF.close();
+
+    if (!encontrada) {
+        cout << "Factura no encontrada." << endl;
+        return;
+    }
+
+    fstream archivoD(ArchivoDetalles, ios::binary | ios::in | ios::out);
+    FacturacionDetalle detalle;
+    int contador = 0;
+
+    while (archivoD.read((char*)&detalle, sizeof(FacturacionDetalle))) {
+        if (detalle.nro_factura == nroFacturaEliminar && !detalle.eliminado) {
+            detalle.eliminado = true;
+            archivoD.seekp(-(int)sizeof(FacturacionDetalle), ios::cur);
+            archivoD.write((char*)&detalle, sizeof(FacturacionDetalle));
+            archivoD.seekg(archivoD.tellp()); 
+            contador++;
+        }
+    }
+    archivoD.close();
+    cout << "Se anularon " << contador << " detalles asociados." << endl;
+}
+
+void CargarDatosBinarioVectorF(string NombreArchivo, vector<Facturacion> &vector_facturaciones){
+    ifstream archivo(NombreArchivo, ios::binary);
+    if (!archivo.good()) return;
+    Facturacion facturacion;
+    while (archivo.read((char*)&facturacion, sizeof(Facturacion))) {
+        if(!facturacion.eliminado)
+            vector_facturaciones.push_back(facturacion);
+    }    
+    archivo.close();
+}
+
+void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string NombreArchivo, vector<FacturacionDetalle> &vector_FacturacionDetalles){
     ofstream archivo;
-    
     Facturacion Facturacion1;
-    Producto producto;
-    Fecha fecha;
-    int dia, mes, año;
-    double precio_unitario_producto = 0;
     archivo.open(NombreArchivo, ios::binary|ios::app);
     if(archivo.good()){
         if(vector_Facturaciones.size() == 0){
             Facturacion1.nro_factura = 1;
+        } else {
+            Facturacion1.nro_factura = vector_Facturaciones.back().nro_factura + 1;
         }
-        else{
-            Facturacion1.nro_factura = vector_Facturaciones[0].nro_factura + 1;
-        }
-        cout << "Ingrese el numero de carnet del cliente ";
-        cin >> Facturacion1.ci_cliente;
-        cout << "Ingrese el nit: ";
-        cin >> Facturacion1.nit;
-        cout << "Ingrese el beneficiario";
-        cin >> Facturacion1.beneficiario;
-        cout << "Ingrese la fecha de hoy en numero:" << endl;
-        cout << "EJEMPLO: Fecha 27/09/2025 dia: 27, mes: 9, año: 2025" << endl;
-        cout << "Dia: ";
-        cin >> dia;
-        cout << "Mes: ";
-        cin >> mes;
-        cout << "Año: ";
-        cin >> año;
-        fecha.dia = dia;
-        fecha.mes = mes;
-        fecha.año = año;
-        Facturacion1.fecha = fecha;
+        cout << "Ingrese CI cliente: "; cin >> Facturacion1.ci_cliente;
+        cout << "Ingrese NIT: "; cin >> Facturacion1.nit;
+        cout << "Ingrese Beneficiario: "; cin >> Facturacion1.beneficiario;
+        cout << "Ingrese fecha (Dia Mes Año): ";
+        cin >> Facturacion1.fecha.dia >> Facturacion1.fecha.mes >> Facturacion1.fecha.año;
+        
+        AgregarFacturacionDetalle(vector_FacturacionDetalles, "FacturacionDetalles.bin");
+        
+    
         Facturacion1.total_factura = SumarPrecioSubTotalNroFactura("FacturacionDetalles.bin", Facturacion1.nro_factura);
-        archivo.write((char*)&Facturacion1, sizeof(Facturacion));
+        Facturacion1.eliminado = false;
 
+        archivo.write((char*)&Facturacion1, sizeof(Facturacion));
+        vector_Facturaciones.push_back(Facturacion1);
     }
     archivo.close();
-    cout << "El Facturacion se registro correctamente" << endl;
-    
+    cout << "Facturacion registrada." << endl;
 }
+
 void MostrarFacturaciones(string NombreArchivo){
     ifstream archivo;
     archivo.open(NombreArchivo, ios::binary);
     Facturacion Facturacion;
-    Producto producto;
     if(archivo.good()){
         while(archivo.read((char*)&Facturacion, sizeof(Facturacion))){
-            cout << "Nro Factura: " << Facturacion.nro_factura <<endl;
-            cout << "Ci del Cliente " << Facturacion.ci_cliente;
-            
-            cout << "NIT: " << Facturacion.nit<<endl;
-            cout << "Beneficiario: " << Facturacion.beneficiario << endl;
-            cout << "Fecha: " << Facturacion.fecha.dia << "/" << Facturacion.fecha.mes << "/"<<Facturacion.fecha.año << endl;
-            cout << "Precio final de la factura: " << Facturacion.total_factura << endl;
-            cout << "------------------------------------" << endl;
-            MostrarFacturacionDetallesNroFacturas("FacturacionDetalles.bin", Facturacion.nro_factura);
-            
+            if(!Facturacion.eliminado){
+                cout << "Nro Factura: " << Facturacion.nro_factura <<endl;
+                cout << "Ci Cliente: " << Facturacion.ci_cliente << endl;
+                cout << "Fecha: " << Facturacion.fecha.dia << "/" << Facturacion.fecha.mes << "/"<<Facturacion.fecha.año << endl;
+                cout << "TOTAL: " << Facturacion.total_factura << endl;
+                cout << "------------------------------------" << endl;
+                MostrarFacturacionDetallesNroFacturas("FacturacionDetalles.bin", Facturacion.nro_factura);
+            }
         }
     }
     archivo.close();
-    
-    
-    
-
 }
+
 void MostrarMenuFacturacion(){
     cout << "=============================" << endl;
-    cout << "Menu Ferreteria: FacturacionS" << endl;
+    cout << "Menu: Facturaciones" << endl;
     cout << "=============================" << endl;
-    cout << "1. Agregar Detalles a la facturacion" << endl;
-    cout << "2. Listar Detalles a la facturacion"<< endl;
-    cout << "3. Salir"<< endl;
-    cout << "###REPORTES###" << endl;    
+    cout << "1. Agregar facturacion" << endl;
+    cout << "2. Listar facturaciones" << endl;
+    cout << "3. Anular Factura (Eliminar Completo)" << endl;
+    cout << "4. Modificar Factura (Conjunto)" << endl;
+    cout << "5. Salir"<< endl;
     cout << "=============================" << endl;
 }
 
-void MostrarMenuFacturacionVector(vector<string> vector_cadenas){
-    for(int i = 0; i < vector_cadenas.size(); i++){
-        if(i%3 != 0){
-            cout << i+1 << " " << vector_cadenas[i] << "\t";    
-        }
-        else{
-            cout << i+1 << " " << vector_cadenas[i] << endl;    
-        }
+int ControlFacturaciones(vector<Facturacion> vector_Facturaciones, vector<FacturacionDetalle> &vector_FacturacionDetalles){
+    string NombreArchivo = "Facturaciones.bin";
+    int opcion;
+    do {
+        MostrarMenuFacturacion();
+        cout << "Escoja una opcion: ";
+        cin >> opcion;
+        cin.ignore();
         
-
-    }
+        switch (opcion){
+        case 1: AgregarFacturacion(vector_Facturaciones, NombreArchivo, vector_FacturacionDetalles); break;
+        case 2: MostrarFacturaciones(NombreArchivo); break;
+        case 3: AnularFacturaLogica(NombreArchivo, "FacturacionDetalles.bin"); break;
+        case 4: ModificarFacturaCompleta(NombreArchivo, "FacturacionDetalles.bin"); break;
+        case 5: cout << "Saliendo..." << endl; break;
+        default: cout << "Opcion no valida." << endl; break;
+        }
+    } while(opcion != 5);
+    return 0;
 }
