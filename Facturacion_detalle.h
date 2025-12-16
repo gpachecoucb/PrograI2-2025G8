@@ -101,62 +101,72 @@ void ModificarDetalleEspecifico(string NombreArchivo, int nroFactura) {
 
 
 void CargarDatosBinarioVectorDF(string NombreArchivo, vector<FacturacionDetalle> &vector_facturacionesDetalle){
+    vector_facturacionesDetalle.clear();
     ifstream archivo(NombreArchivo, ios::binary);
     if (!archivo.good()) return;
     FacturacionDetalle facturacionDetalle;
     while (archivo.read((char*)&facturacionDetalle, sizeof(FacturacionDetalle))) {
-        if(!facturacionDetalle.eliminado)
-            vector_facturacionesDetalle.push_back(facturacionDetalle);
+        vector_facturacionesDetalle.push_back(facturacionDetalle);
     }
     archivo.close();
 }
 
-void AgregarFacturacionDetalle(vector<FacturacionDetalle> &vector_FacturacionDetalles, string NombreArchivo){
+void AgregarFacturacionDetalle(vector<FacturacionDetalle> &vector_FacturacionDetalles, string NombreArchivo, int nro_factura_asignado)
+{
     ofstream archivo;
     FacturacionDetalle FacturacionDetalle1;
     int opcion;
     double precio_unitario_producto = 0;
-    archivo.open(NombreArchivo, ios::binary|ios::app);
-    if(archivo.good()){
-        if(vector_FacturacionDetalles.size() == 0){
-            FacturacionDetalle1.nro_factura = 1;
-        }
-        else{
-            FacturacionDetalle1.nro_factura = vector_FacturacionDetalles.back().nro_factura + 1;
-        }
-        
-        do{
+    
+    archivo.open(NombreArchivo, ios::binary | ios::app);
+    if (archivo.good())
+    {
+        // YA NO calculamos el ID aquí. Usamos el que nos mandaron.
+        // El nro_factura es el enlace con el Padre.
+        FacturacionDetalle1.nro_factura = nro_factura_asignado; 
+
+        do
+        {
             Producto producto_buscado;
-            do{
+            do
+            {
                 cout << "Ingrese el ID del producto: ";
                 cin >> FacturacionDetalle1.id_producto;
                 BuscarProductoID("Productos.bin", FacturacionDetalle1.id_producto, producto_buscado);
-                precio_unitario_producto = producto_buscado.precio_Venta;
-                if(producto_buscado.id_producto == 0){
+                
+                if (producto_buscado.id_producto == 0)
+                {
                     cout << "El producto no existe." << endl;
                 }
-            }while(producto_buscado.id_producto == 0);
-    
+                else
+                {
+                    precio_unitario_producto = producto_buscado.precio_Venta;
+                }
+            } while (producto_buscado.id_producto == 0);
+
             FacturacionDetalle1.precio_unitario = precio_unitario_producto;
+            
             cout << "Ingrese la cantidad del producto: ";
             cin >> FacturacionDetalle1.cantidad;
-            FacturacionDetalle1.precio_total = FacturacionDetalle1.precio_unitario*FacturacionDetalle1.cantidad;
             
-            FacturacionDetalle1.eliminado = false; 
-            
-            archivo.write((char*)&FacturacionDetalle1, sizeof(FacturacionDetalle));
-            
-            do{
+            FacturacionDetalle1.precio_total = FacturacionDetalle1.precio_unitario * FacturacionDetalle1.cantidad;
+            FacturacionDetalle1.eliminado = false;
+
+            // Guardamos el detalle (que ya tiene el nro_factura correcto)
+            archivo.write((char *)&FacturacionDetalle1, sizeof(FacturacionDetalle));
+            vector_FacturacionDetalles.push_back(FacturacionDetalle1);
+
+            do
+            {
                 cout << "Quiere seguir agregando mas productos? 1.SI 2.NO: ";
                 cin >> opcion;
-            }while(opcion != 1 && opcion != 2);
-    
-        }while(opcion != 2);
+            } while (opcion != 1 && opcion != 2);
+
+        } while (opcion != 2);
     }
     archivo.close();
     cout << "Detalles registrados correctamente" << endl;
 }
-
 void MostrarMenuFacturacionDetalle(){
     cout << "=============================" << endl;
     cout << "Menu: FacturacionDetalles" << endl;
@@ -190,16 +200,30 @@ int ControlFacturacionDetalles(vector<FacturacionDetalle> &vector_FacturacionDet
     string NombreArchivo = "FacturacionDetalles.bin";
     int opcion;
     do {
+        system("cls");
         MostrarMenuFacturacionDetalle();
         cout << "Escoja una opcion: ";
         cin >> opcion;
         cin.ignore();
         
         switch (opcion){
-        case 1: AgregarFacturacionDetalle(vector_FacturacionDetalles, NombreArchivo); break;
-        case 2: MostrarFacturacionDetalles(NombreArchivo); break;
-        case 3: cout << "Saliendo..." << endl; break;
-        default: cout << "Opcion no valida." << endl; break;
+            case 1:
+                system("cls");
+                //AgregarFacturacionDetalle(vector_FacturacionDetalles, NombreArchivo); 
+                system("pause");
+                break;
+            case 2: 
+                system("cls");
+                MostrarFacturacionDetalles(NombreArchivo); 
+                system("pause");
+                break;
+            case 3:
+                cout << "Saliendo..." << endl; 
+                break;
+            default: 
+                cout << "Opcion no valida." << endl; 
+                system("pause");
+                break;
         }
     } while(opcion != 3);
     return 0;

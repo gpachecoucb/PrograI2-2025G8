@@ -155,44 +155,68 @@ void AnularFacturaLogica(string ArchivoFacturas, string ArchivoDetalles) {
     cout << "Se anularon " << contador << " detalles asociados." << endl;
 }
 
-void CargarDatosBinarioVectorF(string NombreArchivo, vector<Facturacion> &vector_facturaciones){
+void CargarDatosBinarioVectorF(string NombreArchivo, vector<Facturacion> &vector_facturaciones)
+{
+    vector_facturaciones.clear();
     ifstream archivo(NombreArchivo, ios::binary);
     if (!archivo.good()) return;
     Facturacion facturacion;
     while (archivo.read((char*)&facturacion, sizeof(Facturacion))) {
-        if(!facturacion.eliminado)
-            vector_facturaciones.push_back(facturacion);
-    }    
+        vector_facturaciones.push_back(facturacion);
+    }
     archivo.close();
 }
 
-void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string NombreArchivo, vector<FacturacionDetalle> &vector_FacturacionDetalles){
+void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string NombreArchivo, vector<FacturacionDetalle> &vector_FacturacionDetalles)
+{
     ofstream archivo;
     Facturacion Facturacion1;
-    archivo.open(NombreArchivo, ios::binary|ios::app);
-    if(archivo.good()){
-        if(vector_Facturaciones.size() == 0){
+    archivo.open(NombreArchivo, ios::binary | ios::app);
+
+    if (archivo.good())
+    {
+        // 1. Lógica del ID (ESTA ES LA CORRECTA)
+        // Se genera un UNICO numero para toda la venta
+        if (vector_Facturaciones.empty())
+        {
             Facturacion1.nro_factura = 1;
-        } else {
+        }
+        else
+        {
             Facturacion1.nro_factura = vector_Facturaciones.back().nro_factura + 1;
         }
+
+        cout << "--- NUEVA FACTURA NRO: " << Facturacion1.nro_factura << " ---" << endl;
+
+        // 2. Datos del Cliente
         cout << "Ingrese CI cliente: "; cin >> Facturacion1.ci_cliente;
         cout << "Ingrese NIT: "; cin >> Facturacion1.nit;
         cout << "Ingrese Beneficiario: "; cin >> Facturacion1.beneficiario;
-        cout << "Ingrese fecha (Dia Mes Año): ";
-        cin >> Facturacion1.fecha.dia >> Facturacion1.fecha.mes >> Facturacion1.fecha.año;
-        
-        AgregarFacturacionDetalle(vector_FacturacionDetalles, "FacturacionDetalles.bin");
-        
-    
+
+        // 3. Fecha Automática
+        time_t now = time(0);
+        tm *ltm = localtime(&now);
+        Facturacion1.fecha.dia = ltm->tm_mday;
+        Facturacion1.fecha.mes = 1 + ltm->tm_mon;
+        Facturacion1.fecha.año = 1900 + ltm->tm_year;
+
+        cout << "Fecha registrada: " << Facturacion1.fecha.dia << "/" << Facturacion1.fecha.mes << "/" << Facturacion1.fecha.año << endl;
+
+        // 4. Agregar Detalles (AQUI ESTA EL CAMBIO CLAVE)
+        // Le pasamos el ID que acabamos de crear para que los productos se enlacen
+        AgregarFacturacionDetalle(vector_FacturacionDetalles, "FacturacionDetalles.bin", Facturacion1.nro_factura);
+
+        // 5. Calcular Total
+        // Ahora sí funcionará porque los detalles tienen el mismo ID que la factura
         Facturacion1.total_factura = SumarPrecioSubTotalNroFactura("FacturacionDetalles.bin", Facturacion1.nro_factura);
         Facturacion1.eliminado = false;
 
-        archivo.write((char*)&Facturacion1, sizeof(Facturacion));
+        archivo.write((char *)&Facturacion1, sizeof(Facturacion));
         vector_Facturaciones.push_back(Facturacion1);
     }
     archivo.close();
-    cout << "Facturacion registrada." << endl;
+    cout << "Facturacion registrada con exito. Total: " << Facturacion1.total_factura << endl;
+    system("pause");
 }
 
 void MostrarFacturaciones(string NombreArchivo){
@@ -200,8 +224,10 @@ void MostrarFacturaciones(string NombreArchivo){
     archivo.open(NombreArchivo, ios::binary);
     Facturacion Facturacion;
     if(archivo.good()){
+        cout << "----------------FACTURACIONES REGISTRADAS--------------------" << endl;
         while(archivo.read((char*)&Facturacion, sizeof(Facturacion))){
             if(!Facturacion.eliminado){
+                cout << "------------------------------------" << endl;
                 cout << "Nro Factura: " << Facturacion.nro_factura <<endl;
                 cout << "Ci Cliente: " << Facturacion.ci_cliente << endl;
                 cout << "Fecha: " << Facturacion.fecha.dia << "/" << Facturacion.fecha.mes << "/"<<Facturacion.fecha.año << endl;
@@ -230,18 +256,38 @@ int ControlFacturaciones(vector<Facturacion> vector_Facturaciones, vector<Factur
     string NombreArchivo = "Facturaciones.bin";
     int opcion;
     do {
+        system("cls");
         MostrarMenuFacturacion();
         cout << "Escoja una opcion: ";
         cin >> opcion;
         cin.ignore();
         
         switch (opcion){
-        case 1: AgregarFacturacion(vector_Facturaciones, NombreArchivo, vector_FacturacionDetalles); break;
-        case 2: MostrarFacturaciones(NombreArchivo); break;
-        case 3: AnularFacturaLogica(NombreArchivo, "FacturacionDetalles.bin"); break;
-        case 4: ModificarFacturaCompleta(NombreArchivo, "FacturacionDetalles.bin"); break;
-        case 5: cout << "Saliendo..." << endl; break;
-        default: cout << "Opcion no valida." << endl; break;
+            case 1:    
+                system("cls");
+                AgregarFacturacion(vector_Facturaciones, NombreArchivo, vector_FacturacionDetalles); 
+                system("pause");
+                break;
+            case 2: 
+                system("cls");
+                MostrarFacturaciones(NombreArchivo); 
+                system("pause");
+                break;
+            case 3: 
+                AnularFacturaLogica(NombreArchivo, "FacturacionDetalles.bin"); 
+                system("pause");
+                break;
+            case 4: 
+                ModificarFacturaCompleta(NombreArchivo, "FacturacionDetalles.bin"); 
+                system("pause");
+                break;
+            case 5: 
+                cout << "Saliendo..." << endl; 
+                break;
+            default: 
+                cout << "Opcion no valida." << endl; 
+                system("pause");
+                break;
         }
     } while(opcion != 5);
     return 0;
