@@ -139,6 +139,7 @@ void MostrarMenuReportes(){
     cout << "3. Productos menos vendidos" << endl;
     cout << "4. Listar Productos comprados por un cliente" << endl;
     cout << "5. Ventas del dia y total ganado" << endl;
+    cout << "6. Mostar Clientes Facturados" << endl;
     
     cout << "0. Salir" << endl;
      
@@ -320,7 +321,7 @@ void MostrarProductosVendidosPersonaCIX(int ci) {
     CargarDatosBinarioVectorP("Productos.bin", todos_los_productos);
 
     //  Leer Detalles UNA SOLA VEZ y sumar cantidades
-    // Map: Key = ID_Producto, Value = Cantidad Comprada Total
+    // Map: Key = ID_Producto, Value = Cantidad Comprada Total (Es el funcionamiento de un diccionario)
     map<int, int> conteo_productos; 
 
     ifstream archivoDetalles("FacturacionDetalles.bin", ios::binary);
