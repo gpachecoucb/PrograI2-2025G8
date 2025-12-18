@@ -10,7 +10,9 @@
 using namespace std;
 
 struct Fecha {
-    int dia, mes, año;
+    int dia;
+    int mes;
+    int año;
 };
 
 struct Facturacion {
@@ -175,8 +177,8 @@ void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string Nombre
 
     if (archivo.good())
     {
-        // 1. Lógica del ID (ESTA ES LA CORRECTA)
-        // Se genera un UNICO numero para toda la venta
+        // 1. Lógica del ID 
+        
         if (vector_Facturaciones.empty())
         {
             Facturacion1.nro_factura = 1;
@@ -202,12 +204,11 @@ void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string Nombre
 
         cout << "Fecha registrada: " << Facturacion1.fecha.dia << "/" << Facturacion1.fecha.mes << "/" << Facturacion1.fecha.año << endl;
 
-        // 4. Agregar Detalles (AQUI ESTA EL CAMBIO CLAVE)
-        // Le pasamos el ID que acabamos de crear para que los productos se enlacen
+        // 4. Agregar Detalles 
+       
         AgregarFacturacionDetalle(vector_FacturacionDetalles, "FacturacionDetalles.bin", Facturacion1.nro_factura);
 
         // 5. Calcular Total
-        // Ahora sí funcionará porque los detalles tienen el mismo ID que la factura
         Facturacion1.total_factura = SumarPrecioSubTotalNroFactura("FacturacionDetalles.bin", Facturacion1.nro_factura);
         Facturacion1.eliminado = false;
 
@@ -216,7 +217,7 @@ void AgregarFacturacion(vector<Facturacion> &vector_Facturaciones, string Nombre
     }
     archivo.close();
     cout << "Facturacion registrada con exito. Total: " << Facturacion1.total_factura << endl;
-    system("pause");
+    
 }
 
 void MostrarFacturaciones(string NombreArchivo){

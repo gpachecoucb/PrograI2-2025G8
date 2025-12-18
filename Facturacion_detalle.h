@@ -121,8 +121,8 @@ void AgregarFacturacionDetalle(vector<FacturacionDetalle> &vector_FacturacionDet
     archivo.open(NombreArchivo, ios::binary | ios::app);
     if (archivo.good())
     {
-        // YA NO calculamos el ID aquí. Usamos el que nos mandaron.
-        // El nro_factura es el enlace con el Padre.
+        
+        // El nro_factura es el enlace con el Padre. (el parametro nro_factura_asignado)
         FacturacionDetalle1.nro_factura = nro_factura_asignado; 
 
         do
