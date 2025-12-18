@@ -17,6 +17,7 @@ void MostrarProductosVendidosPersonaCIX(int ci);
 int MenuReportes();
 void MostrarMenuReportes();
 void MostrarClientesFacturados();
+void Mostrar_Cliente_Gastan_Mas( );
 int main(){
     int opcion;
     vector<Producto> vector_productos;
@@ -117,7 +118,11 @@ int MenuReportes(){
             MostrarClientesFacturados() ;
             system("pause");
             break;
-        
+        case 7:
+            system("cls");
+            Mostrar_Cliente_Gastan_Mas( ) ;
+            system("pause");
+            break;
         case 0:
             cout << "Saliendo del programa..." << endl;
             break;
@@ -139,8 +144,8 @@ void MostrarMenuReportes(){
     cout << "3. Productos menos vendidos" << endl;
     cout << "4. Listar Productos comprados por un cliente" << endl;
     cout << "5. Ventas del dia y total ganado" << endl;
-    cout << "6. Mostar Clientes Facturados" << endl;
-    
+    cout << "6. Clientes Facturados" << endl;
+    cout << "7. Cliente que gasta mas" << endl;
     cout << "0. Salir" << endl;
      
     cout << "=============================" << endl;
@@ -321,7 +326,7 @@ void MostrarProductosVendidosPersonaCIX(int ci) {
     CargarDatosBinarioVectorP("Productos.bin", todos_los_productos);
 
     //  Leer Detalles UNA SOLA VEZ y sumar cantidades
-    // Map: Key = ID_Producto, Value = Cantidad Comprada Total (Es el funcionamiento de un diccionario)
+    // Map: Key = ID_Producto, Value = Cantidad Comprada Total
     map<int, int> conteo_productos; 
 
     ifstream archivoDetalles("FacturacionDetalles.bin", ios::binary);
@@ -535,6 +540,71 @@ void MostrarProductosMenosVendidos()
                 cout << "=========================" << endl;
                 
             }
+        }
+    }
+}
+
+void Mostrar_Cliente_Gastan_Mas( ){
+    vector<Clientes> Lista_Clientes;
+    vector<Facturacion>  vector_Facturaciones;
+    ifstream archivoTrabajadores("Lista_de_Clientes.bin", ios::binary);
+    ifstream archivoFacturas("Facturaciones.bin", ios::binary);
+    Clientes Clientes;
+    Facturacion Facturas;
+    // Trabajadores
+    if (archivoTrabajadores.good()) {
+        while (archivoTrabajadores.read((char*)&Clientes, sizeof(Clientes))) {
+            Lista_Clientes.push_back(Clientes);
+        }
+    }
+    archivoTrabajadores.close();
+    // Facturas
+    if (archivoFacturas.good()) {
+        while (archivoFacturas.read((char*)&Facturas, sizeof(Facturacion))) {
+            vector_Facturaciones.push_back(Facturas);
+        }
+    }
+    archivoFacturas.close();
+    vector <double> v;
+    vector <int> Nro_ci;
+    double suma_gastado=0;
+    for (int i=0 ;i<vector_Facturaciones.size();i++)
+    {
+        for (int j = 0; j < Lista_Clientes.size(); j++)
+        {
+            if (vector_Facturaciones[i].ci_cliente == Lista_Clientes[j].Nro_CI)
+            {
+            suma_gastado+=vector_Facturaciones[i].total_factura;
+            }
+        }
+        v.push_back(suma_gastado);
+        Nro_ci.push_back(vector_Facturaciones[i].ci_cliente);
+    } 
+    for (int i=0 ;i<Lista_Clientes.size();i++) {
+        cout << "NIT / CI\tMonto Gastado" << endl;
+        cout <<"==========================="<<endl;
+        for (int i = 0; i < Lista_Clientes.size(); i++)
+        {
+            cout<<Nro_ci[i]<<"\t"<<v[i]<<endl;
+        }        
+    }
+    int a =0;
+    int posicion;
+    for (int i = 0; i < Lista_Clientes.size(); i++)
+    {
+        if (a < v[i])
+        {
+            a = v[i];
+            posicion = i;
+        }
+    }
+    for (int i = 0; i < Lista_Clientes.size(); i++)
+    {
+        if (Nro_ci[posicion] == Lista_Clientes[i].Nro_CI)
+        {
+            cout<<"=========================="<<endl;
+            cout<<"EL CLIENTE QUE RECIBE UN DESCUENTO ES: "<<endl;
+            Imprimir_Clientes(Lista_Clientes[i]);
         }
     }
 }
